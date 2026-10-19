@@ -1,0 +1,24 @@
+services:
+  jenkins:
+    image: rezanaipospos/jenkins-devops-course:latest
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      - JENKINS_ADMIN_PASSWORD=admin123
+      - JAVA_OPTS=-Xmx512m -Xms512m
+    # Fix Docker socket permission (macOS Docker Desktop)
+    user: root
+    entrypoint: ["/bin/bash", "-c", "chmod 666 /var/run/docker.sock && exec /usr/bin/tini -- /usr/local/bin/jenkins.sh"]
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  jenkins_home:
+    name: jenkins_home
